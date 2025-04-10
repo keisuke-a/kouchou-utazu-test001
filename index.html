@@ -14,9 +14,6 @@
         /* エラー文言は初期非表示 */
         #error {
           display: none;
-          color: red;
-          text-align: center;
-          margin-top: 2em;
         }
         /* ログアウトリンクも初期非表示 */
         #logout-link {
@@ -75,17 +72,17 @@
                 document.getElementById("logout-link").style.display = "block";
                 document.getElementById("auth-wrapper").style.display = 'block';
                 // 最後にbodyを表示
-                document.body.style.visibility = 'visible';
+                // document.body.style.visibility = 'visible';
 
             } catch (err) {
                 console.error("Auth0 error:", err);
 
                 // 認証失敗
-                document.getElementById("auth-wrapper").style.display = 'none';
+                //document.getElementById("auth-wrapper").style.display = 'none';
                 document.getElementById("error").style.display = "block";
                 document.getElementById("logout-link").style.display = "block";
                 //エラー時もbodyは表示
-                document.body.style.visibility = 'visible';
+                //document.body.style.visibility = 'visible';
             }
         });
       </script>
