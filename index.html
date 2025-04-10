@@ -48,6 +48,7 @@
                     throw new Error("Missing or invalid email. Likely unauthorized.");
                 }
 
+                const email = user.email; 
                 const domain = email.split('@')[1];
                 if (!allowedDomains.includes(domain)) {
                     throw new Error("Unauthorized domain: " + domain);
@@ -60,10 +61,10 @@
                 console.error("Auth0 error:", err);
 
                 // 認証失敗
+                document.getElementById("auth-wrapper").style.display = 'none';
                 document.getElementById("error").style.display = "block";
                 document.getElementById("logout-link").style.display = "block";
-                //document.getElementById("auth-wrapper").innerHTML = '';
-                //document.body.style.visibility = 'visible';
+                document.body.style.visibility = 'visible';
             }
         });
       </script>
