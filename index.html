@@ -28,6 +28,17 @@
       
           // 認証済み（PostLogin Action で domain は既に検証済み）
           document.body.style.visibility = 'visible';
+
+          // ログアウトボタン追加
+          const logoutBtn = document.createElement('a');
+          logoutBtn.href = "https://dev-gpuvuldx21ezraz3.us.auth0.com/v2/logout?returnTo=" + window.location.origin;
+          logoutBtn.textContent = "ログアウト";
+          logoutBtn.style.display = "block";
+          logoutBtn.style.marginTop = "1em";
+          logoutBtn.style.color = "#0070f3";
+          logoutBtn.style.fontSize = "16px";
+          document.body.appendChild(logoutBtn);
+
         });
       </script>
 
