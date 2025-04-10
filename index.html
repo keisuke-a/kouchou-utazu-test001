@@ -44,15 +44,19 @@
                 
                 // 認証成功
                 document.getElementById("logout-link").style.display = "block";
+                document.getElementById("auth-wrapper").style.visibility = 'visible';
             } catch (err) {
                 console.error("Auth0 error:", err);
+
                 // 認証失敗
                 document.getElementById("error").style.display = "block";
                 document.getElementById("logout-link").style.display = "block";
+                document.getElementById("auth-wrapper").innerHTML = ''; // コンテンツを削除（見えないように）
+                document.body.style.visibility = 'visible'; // ページ自体は表示する
             }
             // 成功でも失敗でも表示
             // document.body.style.visibility = 'visible';
-            document.getElementById("auth-wrapper").style.visibility = 'visible';
+            // document.getElementById("auth-wrapper").style.visibility = 'visible';
         });
 
 
