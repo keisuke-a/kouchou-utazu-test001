@@ -37,8 +37,9 @@
                 
                 const isAuthenticated = await auth0.isAuthenticated();
                 if (!isAuthenticated) {
-                    await auth0.loginWithRedirect();
-                    return;
+                    throw new Error("Not authenticated");
+                    //await auth0.loginWithRedirect();
+                    //return;
                 }
 
                 const user = await auth0.getUser();
