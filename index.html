@@ -42,7 +42,11 @@
                 }
 
                 const user = await auth0.getUser();
-                const email = user?.email || '';
+                //const email = user?.email || '';
+                if (!user || !user.email || typeof user.email !== "string") {
+                    throw new Error("Missing or invalid email. Likely unauthorized.");
+                }
+
                 const domain = email.split('@')[1];
                 if (!allowedDomains.includes(domain)) {
                     throw new Error("Unauthorized domain: " + domain);
