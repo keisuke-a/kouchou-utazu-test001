@@ -37,7 +37,7 @@
     <script>
         window.addEventListener('DOMContentLoaded', async () => {
           const allowedDomains = ["town.utazu.kagawa.jp", "boots.co.jp"];
-      
+        
           function showError(message) {
             const errorEl = document.getElementById("error");
             errorEl.textContent = message;
@@ -48,13 +48,13 @@
               authWrapper.style.display = "none";
             }
           }
-      
+        
           const auth0 = await createAuth0Client({
             domain: 'dev-gpuvuldx21ezraz3.us.auth0.com',
             client_id: 'qJotObNR7vdo6AS3XtYARn1tN365erSz',
             redirect_uri: window.location.origin
           });
-      
+        
           try {
             // ✅ コールバック処理
             if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
@@ -67,68 +67,56 @@
                 return;
               }
             }
-      
+        
             const isAuthenticated = await auth0.isAuthenticated();
-      
+        
             if (isAuthenticated) {
               const user = await auth0.getUser();
-      
+        
               if (!user || !user.email || typeof user.email !== "string") {
                 showError("認証情報が不完全です。");
                 return;
               }
-      
+        
               const domain = user.email.split('@')[1];
-      
-              // ✅ アプローチB: ブロックされたユーザーの再ログイン防止
-              const blockedUsers = JSON.parse(localStorage.getItem("blockedUsers") || "[]");
-              if (blockedUsers.includes(user.email) || !allowedDomains.includes(domain)) {
-                // 一度ブロックしたユーザーは再認証させない
-                if (!blockedUsers.includes(user.email)) {
-                  blockedUsers.push(user.email);
-                  localStorage.setItem("blockedUsers", JSON.stringify(blockedUsers));
-                }
-      
-                // ログアウトして終了（別ページへ）
+              if (!allowedDomains.includes(domain)) {
+                // ❗ 不許可ドメイン → localStorage にブロックフラグを記録
+                localStorage.setItem("blocked", "1");
+        
                 await auth0.logout({
-                  returnTo: "https://kouchou-utazu-test001.vercel.app/error.html",
+                  returnTo: window.location.origin,
                   federated: true
                 });
                 return;
               }
-      
+        
+              // ✅ 許可ドメインでログイン成功 → ブロック解除
+              localStorage.removeItem("blocked");
+        
               // ✅ 認証成功 & ドメイン許可済み
               const authWrapper = document.getElementById("auth-wrapper");
               if (authWrapper) {
                 authWrapper.style.display = 'block';
               }
               document.getElementById("logout-link").style.display = "block";
-      
+        
             } else {
-              // ✅ アプローチA: 自動ログインをやめて手動で促す
-              showError("ログインしていません。下のボタンからログインしてください。");
-      
-              // 任意：ログインボタンを表示して手動でログイン可能に
-              const loginButton = document.createElement("button");
-              loginButton.innerText = "ログイン";
-              loginButton.style.marginTop = "1em";
-              loginButton.style.padding = "0.5em 1em";
-              loginButton.style.background = "#0070f3";
-              loginButton.style.color = "#fff";
-              loginButton.style.border = "none";
-              loginButton.style.borderRadius = "6px";
-              loginButton.style.cursor = "pointer";
-              loginButton.onclick = () => auth0.loginWithRedirect();
-      
-              document.getElementById("error").appendChild(loginButton);
+              // ✅ 未ログイン状態 → ブロックされていなければ login に誘導
+              const isBlocked = localStorage.getItem("blocked") === "1";
+              if (!isBlocked) {
+                await auth0.loginWithRedirect();
+              } else {
+                showError("このアカウントではアクセスできません。");
+              }
             }
-      
+        
           } catch (err) {
             console.error("Auth0 error:", err);
             showError("認証中にエラーが発生しました。");
           }
         });
-      </script>
+        </script>
+        
         
 
 </body>
