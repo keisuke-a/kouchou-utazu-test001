@@ -37,7 +37,7 @@
     <script>
         window.addEventListener('DOMContentLoaded', async () => {
           const allowedDomains = ["town.utazu.kagawa.jp", "boots.co.jp"];
-        
+      
           function showError(message) {
             const errorEl = document.getElementById("error");
             errorEl.textContent = message;
@@ -48,14 +48,24 @@
               authWrapper.style.display = "none";
             }
           }
-        
+      
           const auth0 = await createAuth0Client({
             domain: 'dev-gpuvuldx21ezraz3.us.auth0.com',
             client_id: 'qJotObNR7vdo6AS3XtYARn1tN365erSz',
             redirect_uri: window.location.origin
           });
-        
+      
           try {
+            // 🔁 Silent Login失敗による無限ループ防止
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const errorDesc = urlParams.get('error_description');
+            if (error === "access_denied" && errorDesc === "unauthorized") {
+              console.warn("Silent authentication failed. Blocking further redirects.");
+              showError("このアカウントではアクセスできません。");
+              return;
+            }
+      
             // ✅ コールバック処理
             if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
               try {
@@ -67,55 +77,60 @@
                 return;
               }
             }
-        
+      
             const isAuthenticated = await auth0.isAuthenticated();
-        
+      
             if (isAuthenticated) {
               const user = await auth0.getUser();
-        
+      
               if (!user || !user.email || typeof user.email !== "string") {
                 showError("認証情報が不完全です。");
                 return;
               }
-        
+      
               const domain = user.email.split('@')[1];
               if (!allowedDomains.includes(domain)) {
                 // ❗ 不許可ドメイン → localStorage にブロックフラグを記録
                 localStorage.setItem("blocked", "1");
-        
+      
                 await auth0.logout({
                   returnTo: window.location.origin,
                   federated: true
                 });
                 return;
               }
-        
+      
               // ✅ 許可ドメインでログイン成功 → ブロック解除
               localStorage.removeItem("blocked");
-        
+      
               // ✅ 認証成功 & ドメイン許可済み
               const authWrapper = document.getElementById("auth-wrapper");
               if (authWrapper) {
                 authWrapper.style.display = 'block';
               }
               document.getElementById("logout-link").style.display = "block";
-        
+      
             } else {
               // ✅ 未ログイン状態 → ブロックされていなければ login に誘導
               const isBlocked = localStorage.getItem("blocked") === "1";
               if (!isBlocked) {
-                await auth0.loginWithRedirect();
+                await auth0.loginWithRedirect({
+                  authorizationParams: {
+                    prompt: "login" // ← Silent Loginを無効化
+                  }
+                });
               } else {
                 showError("このアカウントではアクセスできません。");
               }
             }
-        
+      
           } catch (err) {
             console.error("Auth0 error:", err);
             showError("認証中にエラーが発生しました。");
           }
         });
-        </script>
+      </script>
+      
         
         
 
