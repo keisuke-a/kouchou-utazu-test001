@@ -35,76 +35,68 @@
     </a>
     
         <script>
-        window.addEventListener('DOMContentLoaded', async () => {
-            const allowedDomains = ["town.utazu.kagawa.jp","boots.co.jp"];
-            
-            function showError(message) {
-                    const errorEl = document.getElementById("error");
-                    errorEl.textContent = message;
-                    errorEl.style.display = "block";
-                    document.getElementById("logout-link").style.display = "block";
-                    document.getElementById("auth-wrapper").style.display = "none";
-                }
+            window.addEventListener('DOMContentLoaded', async () => {
+            const allowedDomains = ["town.utazu.kagawa.jp", "boots.co.jp"];
 
-            
+            function showError(message) {
+                const errorEl = document.getElementById("error");
+                errorEl.textContent = message;
+                errorEl.style.display = "block";
+                document.getElementById("logout-link").style.display = "block";
+                document.getElementById("auth-wrapper").style.display = "none";
+            }
+
             const auth0 = await createAuth0Client({
                 domain: 'dev-gpuvuldx21ezraz3.us.auth0.com',
                 client_id: 'qJotObNR7vdo6AS3XtYARn1tN365erSz',
                 redirect_uri: window.location.origin
             });
-            
+
             try {
+                // ✅ 最初にログインコールバックを処理（リダイレクトループを防ぐ）
                 if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+                try {
                     await auth0.handleRedirectCallback();
                     window.history.replaceState({}, document.title, '/');
-                }
-                
-                const isAuthenticated = await auth0.isAuthenticated();
-                if (!isAuthenticated) {
-                    //throw new Error("Not authenticated");
-                    await auth0.loginWithRedirect();
+                } catch (err) {
+                    console.error("Callback error:", err);
+                    showError("ログインに失敗しました（リダイレクト処理）");
                     return;
+                }
+                }
+
+                // ✅ 正しく処理された後に改めて認証確認
+                const isAuthenticated = await auth0.isAuthenticated();
+
+                if (!isAuthenticated) {
+                await auth0.loginWithRedirect();
+                return;
                 }
 
                 const user = await auth0.getUser();
-                //const email = user?.email || '';
 
                 if (!user || !user.email || typeof user.email !== "string") {
-                    showError("認証情報が不完全です。"); //追加0411
-                    return; //追加0411                             
-                    //throw new Error("Missing or invalid email. Likely unauthorized."); //修正0411
+                showError("認証情報が不完全です。");
+                return;
                 }
 
-                const email = user.email; 
-                const domain = email.split('@')[1];
-
+                const domain = user.email.split('@')[1];
                 if (!allowedDomains.includes(domain)) {
-                    showError(`許可されていないドメインです: ${domain}`); //追加0411
-                    return; //追加0411
-                    //throw new Error("Unauthorized domain: " + domain);
+                showError(`許可されていないドメインです: ${domain}`);
+                return;
                 }
-                
-                // 認証成功
-                document.getElementById("logout-link").style.display = "block";
+
+                // ✅ 認証成功＆ドメインもOK
                 document.getElementById("auth-wrapper").style.display = 'block';
-                // 最後にbodyを表示
-                // document.body.style.visibility = 'visible';
+                document.getElementById("logout-link").style.display = "block";
 
             } catch (err) {
                 console.error("Auth0 error:", err);
-                showError("認証中にエラーが発生しました。");//追加0411
-                }
+                showError("認証中にエラーが発生しました。");
+            }
+            });
 
 
-
-                // 認証失敗
-                //document.getElementById("auth-wrapper").style.display = 'none';
-                //document.getElementById("error").style.display = "block";
-                //document.getElementById("logout-link").style.display = "block";
-                //エラー時もbodyは表示
-                //document.body.style.visibility = 'visible';
-            
-        });
       </script>
 
 </body>
