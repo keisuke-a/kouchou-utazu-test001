@@ -82,9 +82,8 @@
               if (!allowedDomains.includes(domain)) {
                 // ❗ 不許可ドメイン → error.html に遷移してループを防止
                 await auth0.logout({
-                  logoutParams: {
-                    returnTo: "https://kouchou-utazu-test001.vercel.app/error.html"
-                  }
+                    returnTo: "https://kouchou-utazu-test001.vercel.app/error.html",
+                    federated: true 
                 });
                 return;
               }
