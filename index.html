@@ -80,10 +80,10 @@
         
               const domain = user.email.split('@')[1];
               if (!allowedDomains.includes(domain)) {
-                // ❗ 不許可ドメイン → 自動ログアウトして終了
+                // ❗ 不許可ドメイン → error.html に遷移してループを防止
                 await auth0.logout({
                   logoutParams: {
-                    returnTo: window.location.origin
+                    returnTo: "https://kouchou-utazu-test001.vercel.app/error.html"
                   }
                 });
                 return;
@@ -107,6 +107,7 @@
           }
         });
         </script>
+        
 
 </body>
 </html>
