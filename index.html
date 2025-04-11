@@ -80,7 +80,12 @@
         
               const domain = user.email.split('@')[1];
               if (!allowedDomains.includes(domain)) {
-                showError(`許可されていないドメインです: ${domain}`);
+                // ❗ 不許可ドメイン → 自動ログアウトして終了
+                await auth0.logout({
+                  logoutParams: {
+                    returnTo: window.location.origin
+                  }
+                });
                 return;
               }
         
