@@ -47,6 +47,8 @@
             if (authWrapper) {
               authWrapper.style.display = "none";
             }
+            // ❌ 不許可ユーザーには絶対に画面を見せない
+            document.body.style.visibility = "hidden";
           }
       
           const auth0 = await createAuth0Client({
@@ -101,6 +103,8 @@
                     } else { 
                     // ✅ 許可ドメイン → ブロック解除＋表示
                     localStorage.removeItem("blocked");
+
+                    document.body.style.visibility = "visible";
 
                     const authWrapper = document.getElementById("auth-wrapper");
                     if (authWrapper) {
