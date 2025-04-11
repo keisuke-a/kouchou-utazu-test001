@@ -89,26 +89,25 @@
               }
       
               const domain = user.email.split('@')[1];
+
               if (!allowedDomains.includes(domain)) {
-                // ❗ 不許可ドメイン → localStorage にブロックフラグを記録
-                localStorage.setItem("blocked", "1");
-      
-                await auth0.logout({
-                  returnTo: window.location.origin,
-                  federated: true
-                });
-                return;
-              }
-      
-              // ✅ 許可ドメインでログイン成功 → ブロック解除
-              localStorage.removeItem("blocked");
-      
-              // ✅ 認証成功 & ドメイン許可済み
-              const authWrapper = document.getElementById("auth-wrapper");
-              if (authWrapper) {
-                authWrapper.style.display = 'block';
-              }
-              document.getElementById("logout-link").style.display = "block";
+                    // ❗ 不許可ドメイン → ブロック
+                    localStorage.setItem("blocked", "1");
+                    await auth0.logout({
+                        returnTo: window.location.origin,
+                        federated: true
+                    });
+                    return;
+                    } else {
+                    // ✅ 許可ドメイン → ブロック解除＋表示
+                    localStorage.removeItem("blocked");
+
+                    const authWrapper = document.getElementById("auth-wrapper");
+                    if (authWrapper) {
+                        authWrapper.style.display = 'block';
+                    }
+                    document.getElementById("logout-link").style.display = "block";
+                }
       
             } else {
               // ✅ 未ログイン状態 → ブロックされていなければ login に誘導
